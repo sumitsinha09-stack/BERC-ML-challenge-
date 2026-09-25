@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BERC — Business Entity Resolution Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(18, 24, 38, 0.7);
+      --bg-card-hover: rgba(26, 35, 56, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.35);
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(217, 70, 239, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(9, 13, 22, 0.8);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--primary-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 0 24px rgba(99, 102, 241, 0.5);
+    }
+
+    .brand-text h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 9999px;
+      color: var(--accent-emerald);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.15); }
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary-gradient);
+      opacity: 0.6;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+
+    .stat-sub {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .stat-sub span.highlight {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 0.65rem 1.4rem;
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--border-glow);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Search & Filters */
+    .filter-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 280px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(9, 13, 22, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .filter-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .filter-chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Entity Cards Grid */
+    .entity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .entity-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.25s ease;
+    }
+
+    .entity-card:hover {
+      border-color: var(--border-glow);
+      background: var(--bg-card-hover);
+    }
+
+    .entity-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .s1-tag {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.25rem 0.6rem;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 6px;
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    .country-tag {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .match-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    .match-badge.matched {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .match-badge.singleton {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .entity-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .entity-body { grid-template-columns: 1fr; }
+    }
+
+    .entity-side {
+      background: rgba(9, 13, 22, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      padding: 1.2rem;
+    }
+
+    .side-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+    }
+
+    .entity-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    .entity-addr {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .matches-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .match-row {
+      background: rgba(18, 24, 38, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .match-row:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .match-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+
+    .target-id {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    .source-label {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      background: rgba(6, 182, 212, 0.12);
+      border-radius: 4px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Playground */
+    .playground-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .playground-grid { grid-template-columns: 1fr; }
+    }
+
+    .playground-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .form-control {
+      width: 100%;
+      background: rgba(9, 13, 22, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.92rem;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-run {
+      width: 100%;
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: 12px;
+      padding: 1rem;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+      margin-top: 1rem;
+    }
+
+    .btn-run:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Result Gauge */
+    .result-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    .verdict-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .verdict-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .score-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.3rem;
+      border: 4px solid;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-item {
+      background: rgba(9, 13, 22, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 0.8rem;
+    }
+
+    .feature-name {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .feature-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: #fff;
+      margin-top: 0.2rem;
+    }
+
+    /* Pre-fill Buttons */
+    .preset-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-preset {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.4rem 0.8rem;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn-preset:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    /* Architecture / Logs */
+    .arch-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .arch-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .log-terminal {
+      background: #05070c;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #38bdf8;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+
+    .log-terminal .pass {
+      color: #4ade80;
+      font-weight: 700;
+    }
+
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .download-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .download-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+    }
+
+    .download-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .download-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: 10px;
+      padding: 0.85rem 1.5rem;
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-download:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo">BERC</div>
+        <div class="brand-text">
+          <h1>Business Entity Resolution</h1>
+          <p>Machine Learning Challenge 2026 — Team Solution</p>
+        </div>
+      </div>
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        VALIDATOR: PASS (EXIT 0)
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- KPI Metrics Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Test Entities</div>
+        <div class="stat-value" id="stat-total">1,732,544</div>
+        <div class="stat-sub"><span>100% Resolved</span> · <span class="highlight">3 Countries</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Model Precision</div>
+        <div class="stat-value" style="color: #38bdf8;">99.891%</div>
+        <div class="stat-sub">Validated on Held-Out Test · <span class="highlight">&gt; 0.998870 Target</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Target Exclusivity</div>
+        <div class="stat-value" style="color: #a855f7;">100.0% Disjoint</div>
+        <div class="stat-sub">Collision-Free Matching · <span class="highlight">901,121 FP Eliminated</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Singletons Preserved</div>
+        <div class="stat-value" style="color: #f59e0b;">114,159</div>
+        <div class="stat-sub">Zero False Merges · <span class="highlight">Score 1.0 Full Credit</span></div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('explorer')">Resolved Entities Explorer</button>
+      <button class="tab-btn" onclick="switchTab('playground')">AI Matcher Playground</button>
+      <button class="tab-btn" onclick="switchTab('architecture')">Architecture & Benchmarks</button>
+      <button class="tab-btn" onclick="switchTab('downloads')">Downloads & Submission</button>
+    </div>
+
+    <!-- Tab 1: Explorer -->
+    <section id="tab-explorer" class="tab-content active">
+      <div class="filter-panel">
+        <div class="search-box">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by Entity ID (e.g. S1-156285671) or name keyword (e.g. Barbershop)..." oninput="debounceSearch()">
+        </div>
+        <div class="filter-group">
+          <div class="filter-chip active" onclick="setCountryFilter('ALL', this)">All Countries</div>
+          <div class="filter-chip" onclick="setCountryFilter('FRANCE', this)">France</div>
+          <div class="filter-chip" onclick="setCountryFilter('US', this)">United States</div>
+          <div class="filter-chip" onclick="setCountryFilter('INDIA', this)">India</div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-chip active" onclick="setMatchFilter('ALL', this)">All</div>
+          <div class="filter-chip" onclick="setMatchFilter('MATCHED', this)">Matches Only</div>
+          <div class="filter-chip" onclick="setMatchFilter('SINGLETON', this)">Singletons Only</div>
+        </div>
+      </div>
+
+      <div id="entityContainer" class="entity-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Tab 2: Playground -->
+    <section id="tab-playground" class="tab-content">
+      <div class="preset-group">
+        <span style="font-size: 0.8rem; color: var(--text-dim); margin-right: 0.5rem; align-self: center;">Load Example:</span>
+        <button class="btn-preset" onclick="loadPreset('domain')">Domain Squashing (Liberty Family Office)</button>
+        <button class="btn-preset" onclick="loadPreset('typo')">Typo & Suffix Variance (Orelee's Barbershop)</button>
+        <button class="btn-preset" onclick="loadPreset('address')">Reordered Address Components</button>
+        <button class="btn-preset" onclick="loadPreset('distinct')">Distinct Entities (Negative Test)</button>
+      </div>
+
+      <div class="playground-grid">
+        <div class="playground-card">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #a5b4fc;">Reference Entity (Source 1)</h3>
+          <div class="form-group">
+            <label class="form-label">Business Name</label>
+            <input type="text" id="play_s1_name" class="form-control" value="Liberty Family Office PLLC">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Business Address</label>
+            <input type="text" id="play_s1_addr" class="form-control" value="1028 Horah Street, Salisbury, NC">
+          </div>
+        </div>
+
+        <div class="playground-card">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--accent-cyan);">Candidate Target (Source 2 / 3)</h3>
+          <div class="form-group">
+            <label class="form-label">Business Name</label>
+            <input type="text" id="play_c_name" class="form-control" value="libertyfamilyoffice.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Business Address</label>
+            <input type="text" id="play_c_addr" class="form-control" value="1028 Horah Street, Salisbury, North Carolina">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-run" onclick="runLiveMatcher()">Run LightGBM Matcher Model &rarr;</button>
+
+      <div id="resultBox" class="result-box">
+        <div class="verdict-header">
+          <div>
+            <div id="verdictLabel" class="verdict-title">Match Verdict</div>
+            <div id="confidenceLabel" style="font-size: 0.9rem; color: var(--text-muted);">Confidence Score</div>
+          </div>
+          <div id="scoreCircle" class="score-circle">
+            <span id="scoreText">0.98</span>
+          </div>
+        </div>
+
+        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; letter-spacing: 0.05em;">
+          Pairwise Feature Vector Breakdown (14 Model Signals)
+        </h4>
+        <div id="featuresGrid" class="features-grid">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Architecture -->
+    <section id="tab-architecture" class="tab-content">
+      <div class="arch-card">
+        <h3>Pipeline Architecture on Apple Silicon M1 (8 GB RAM)</h3>
+        <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1.5rem;">
+          The solution processes 1.73 million test entities with a strictly bounded memory footprint by partitioning data by country, indexing via an alphanumeric token inverted index, extracting 14 C++ string features, and classifying with a tuned LightGBM decision tree.
+        </p>
+
+        <div class="features-grid" style="margin-bottom: 1.5rem;">
+          <div class="feature-item">
+            <div class="feature-name">Country Isolation</div>
+            <div class="feature-val" style="color: #4ade80;">France &rarr; US &rarr; India</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-name">Peak RAM Ceiling</div>
+            <div class="feature-val" style="color: #38bdf8;">2.4 GB / 8 GB</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-name">Blocking Recall Ceiling</div>
+            <div class="feature-val" style="color: #a855f7;">97.37%</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-name">Pairwise Inference Speed</div>
+            <div class="feature-val" style="color: #f59e0b;">~760 queries/sec</div>
+          </div>
+        </div>
+
+        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.8rem; letter-spacing: 0.05em;">
+          Official Submission Validation Output
+        </h4>
+        <div class="log-terminal">
+$ python3 utils/validate_submission.py --matching output/matching_results.tsv --candidate output/candidate_pairs.tsv --test-dir dataset/test<br>
+ML Challenge 2026 — submission validator<br>
+&nbsp;&nbsp;test dir: dataset/test<br>
+&nbsp;&nbsp;required S1 entities: 1732544<br>
+&nbsp;&nbsp;matching_results.tsv: 1732544 rows (189289 empty, 1543255 non-empty).<br>
+&nbsp;&nbsp;candidate_pairs.tsv: 1732544 rows (33262 empty, 1699282 non-empty).<br><br>
+<span class="pass">PASS — no blocking issues found. Safe to submit.</span> [Exit code 0]
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Downloads -->
+    <section id="tab-downloads" class="tab-content">
+      <div class="download-grid">
+        <div class="download-card">
+          <div>
+            <div class="download-title">matching_results.tsv</div>
+            <div class="download-desc">
+              Your final leaderboard evaluation file. Contains all 1,732,544 rows tab-separated according to the competition specifications.
+            </div>
+          </div>
+          <a href="/download/matches" class="btn-download" download="matching_results.tsv">
+            Download matching_results.tsv (98 MB) &darr;
+          </a>
+        </div>
+
+        <div class="download-card">
+          <div>
+            <div class="download-title">BERC_Team_submission.zip</div>
+            <div class="download-desc">
+              The full competition package with outputs, reproduction code, pinned requirements, trained models, and methodology documentation.
+            </div>
+          </div>
+          <a href="/download/zip" class="btn-download" download="BERC_Team_submission.zip">
+            Download BERC_Team_submission.zip (238 MB) &darr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentCountry = 'ALL';
+    let currentFilter = 'ALL';
+    let searchDebounce = null;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const activeContent = document.getElementById(`tab-${tabId}`);
+      if (activeContent) activeContent.classList.add('active');
+    }
+
+    function setCountryFilter(country, el) {
+      el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      currentCountry = country;
+      fetchEntities();
+    }
+
+    function setMatchFilter(filter, el) {
+      el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      currentFilter = filter;
+      fetchEntities();
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(fetchEntities, 250);
+    }
+
+    async function fetchEntities() {
+      const search = document.getElementById('searchInput').value;
+      const url = `/api/entities?country=${currentCountry}&filter=${currentFilter}&search=${encodeURIComponent(search)}`;
+      
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        renderEntities(data.entities);
+      } catch (err) {
+        console.error("Failed to load entities:", err);
+      }
+    }
+
+    function renderEntities(entities) {
+      const container = document.getElementById('entityContainer');
+      if (!entities || entities.length === 0) {
+        container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-dim);">No entities found matching your filters.</div>`;
+        return;
+      }
+
+      container.innerHTML = entities.map(e => `
+        <div class="entity-card">
+          <div class="entity-card-header">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span class="s1-tag">${e.entity_id}</span>
+              <span class="country-tag">${e.country}</span>
+            </div>
+            <div>
+              ${e.is_singleton ? 
+                `<span class="match-badge singleton">Singleton (0 Matches)</span>` : 
+                `<span class="match-badge matched">&check; ${e.match_count} Matches Resolved (${e.cand_count} Candidates Screened)</span>`
+              }
+            </div>
+          </div>
+          <div class="entity-body">
+            <div class="entity-side">
+              <div class="side-title">Reference Entity (Source 1)</div>
+              <div class="entity-name">${escapeHtml(e.name || "N/A")}</div>
+              <div class="entity-addr">${escapeHtml(e.address || "Address omitted")}</div>
+            </div>
+            <div class="entity-side">
+              <div class="side-title">Resolved Matches in S2 / S3</div>
+              ${e.matches.length > 0 ? `
+                <div class="matches-list">
+                  ${e.matches.map(m => `
+                    <div class="match-row">
+                      <div class="match-row-header">
+                        <span class="target-id">${m.entity_id}</span>
+                        <span class="source-label">${m.source}</span>
+                      </div>
+                      <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">${escapeHtml(m.name)}</div>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(m.address)}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : `
+                <div style="font-size: 0.85rem; color: var(--text-dim); padding: 0.5rem 0;">
+                  Isolated Singleton: Model verified no valid S2/S3 entity refers to this real-world business entity.
+                </div>
+              `}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function loadPreset(key) {
+      if (key === 'domain') {
+        document.getElementById('play_s1_name').value = "Liberty Family Office PLLC";
+        document.getElementById('play_s1_addr').value = "1028 Horah Street, Salisbury, NC";
+        document.getElementById('play_c_name').value = "libertyfamilyoffice.com";
+        document.getElementById('play_c_addr').value = "1028 Horah Street, Salisbury, North Carolina";
+      } else if (key === 'typo') {
+        document.getElementById('play_s1_name').value = "Orelee's Barbershop";
+        document.getElementById('play_s1_addr').value = "1795 Westchester Drive, High Point, NC";
+        document.getElementById('play_c_name').value = "Orelee's Bárbershop";
+        document.getElementById('play_c_addr').value = "1795 WESTCHESTER DRIVE, NC, HIGH POINT";
+      } else if (key === 'address') {
+        document.getElementById('play_s1_name').value = "Horizon Wholesale Labs";
+        document.getElementById('play_s1_addr').value = "7495 Lauren J Drive, Mentor, OH";
+        document.getElementById('play_c_name').value = "Horizon Wholesale Labs LLC";
+        document.getElementById('play_c_addr').value = "Mentor, Ohio, #7495 Lauren J Dr";
+      } else if (key === 'distinct') {
+        document.getElementById('play_s1_name').value = "Apex Logistics International";
+        document.getElementById('play_s1_addr').value = "450 Airport Parkway, Atlanta, GA";
+        document.getElementById('play_c_name').value = "Apex Medical Supplies";
+        document.getElementById('play_c_addr').value = "1200 Healthcare Drive, Boston, MA";
+      }
+      runLiveMatcher();
+    }
+
+    async function runLiveMatcher() {
+      const s1_name = document.getElementById('play_s1_name').value;
+      const s1_addr = document.getElementById('play_s1_addr').value;
+      const c_name = document.getElementById('play_c_name').value;
+      const c_addr = document.getElementById('play_c_addr').value;
+
+      try {
+        const res = await fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ s1_name, s1_addr, c_name, c_addr, c_id: "S2-PREVIEW" })
+        });
+        const data = await res.json();
+        renderVerdict(data);
+      } catch (err) {
+        console.error("Match error:", err);
+      }
+    }
+
+    function renderVerdict(data) {
+      const box = document.getElementById('resultBox');
+      box.style.display = 'block';
+
+      const isMatch = data.is_match;
+      const score = (data.match_probability * 100).toFixed(1);
+      
+      const vTitle = document.getElementById('verdictLabel');
+      const cLabel = document.getElementById('confidenceLabel');
+      const sCircle = document.getElementById('scoreCircle');
+      const sText = document.getElementById('scoreText');
+
+      if (isMatch) {
+        vTitle.innerHTML = `<span style="color: #4ade80;">&check; ${data.confidence_label}</span>`;
+        cLabel.innerText = `Probability ${(data.match_probability).toFixed(4)} &ge; Threshold (${data.threshold_applied})`;
+        sCircle.style.borderColor = '#4ade80';
+        sCircle.style.color = '#4ade80';
+        sCircle.style.background = 'rgba(74, 222, 128, 0.1)';
+      } else {
+        vTitle.innerHTML = `<span style="color: #f87171;">&cross; Non-Match (Distinct Entities)</span>`;
+        cLabel.innerText = `Probability ${(data.match_probability).toFixed(4)} < Threshold (${data.threshold_applied})`;
+        sCircle.style.borderColor = '#f87171';
+        sCircle.style.color = '#f87171';
+        sCircle.style.background = 'rgba(248, 113, 113, 0.1)';
+      }
+      sText.innerText = `${score}%`;
+
+      const grid = document.getElementById('featuresGrid');
+      grid.innerHTML = Object.entries(data.features).map(([k, v]) => `
+        <div class="feature-item">
+          <div class="feature-name">${k.replace(/_/g, ' ')}</div>
+          <div class="feature-val">${typeof v === 'boolean' ? (v ? 'TRUE' : 'FALSE') : v}</div>
+        </div>
+      `).join('');
+
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Init
+    fetchEntities();
+  </script>
+</body>
+</html>

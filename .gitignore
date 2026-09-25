@@ -1,0 +1,35 @@
+# Python Virtual Environments
+berc_env/
+venv/
+.venv/
+env/
+
+# Large Datasets & Processed Files (Multi-Gigabytes)
+student_resource/dataset/
+student_resource/processed_data/
+dataset/
+processed_data/
+
+# Model Output Predictions (Hundreds of MBs)
+student_resource/output/
+output/
+*.tsv
+*.csv
+
+# Submission archives (>100MB exceeds GitHub push limit)
+*.zip
+*.tar.gz
+*.7z
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
