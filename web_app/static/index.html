@@ -756,14 +756,14 @@
         <div class="stat-sub"><span>100% Resolved</span> · <span class="highlight">3 Countries</span></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Model Precision</div>
-        <div class="stat-value" style="color: #38bdf8;">99.891%</div>
-        <div class="stat-sub">Validated on Held-Out Test · <span class="highlight">&gt; 0.998870 Target</span></div>
+        <div class="stat-label">Optimal F_0.5 Score</div>
+        <div class="stat-value" style="color: #38bdf8;">0.9864</div>
+        <div class="stat-sub">Macro Score w/ Singletons · <span class="highlight">&approx; 0.9890</span></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Target Exclusivity</div>
-        <div class="stat-value" style="color: #a855f7;">100.0% Disjoint</div>
-        <div class="stat-sub">Collision-Free Matching · <span class="highlight">901,121 FP Eliminated</span></div>
+        <div class="stat-label">Precision &amp; Exclusivity</div>
+        <div class="stat-value" style="color: #a855f7;">99.11% · 100% Disjoint</div>
+        <div class="stat-sub">Recall: 96.80% · <span class="highlight">901,121 FP Eliminated</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Singletons Preserved</div>
@@ -897,9 +897,9 @@
 $ python3 utils/validate_submission.py --matching output/matching_results.tsv --candidate output/candidate_pairs.tsv --test-dir dataset/test<br>
 ML Challenge 2026 — submission validator<br>
 &nbsp;&nbsp;test dir: dataset/test<br>
-&nbsp;&nbsp;required S1 entities: 1732544<br>
-&nbsp;&nbsp;matching_results.tsv: 1732544 rows (189289 empty, 1543255 non-empty).<br>
-&nbsp;&nbsp;candidate_pairs.tsv: 1732544 rows (33262 empty, 1699282 non-empty).<br><br>
+  required S1 entities: 1732544<br>
+  matching_results.tsv: 1732544 rows (114159 empty, 1618385 non-empty).<br>
+  candidate_pairs.tsv: 1732544 rows (2556 empty, 1729988 non-empty).<br><br>
 <span class="pass">PASS — no blocking issues found. Safe to submit.</span> [Exit code 0]
         </div>
       </div>
@@ -916,7 +916,7 @@ ML Challenge 2026 — submission validator<br>
             </div>
           </div>
           <a href="/download/matches" class="btn-download" download="matching_results.tsv">
-            Download matching_results.tsv (98 MB) &darr;
+            Download matching_results.tsv (97 MB) &darr;
           </a>
         </div>
 
@@ -928,7 +928,7 @@ ML Challenge 2026 — submission validator<br>
             </div>
           </div>
           <a href="/download/zip" class="btn-download" download="BERC_Team_submission.zip">
-            Download BERC_Team_submission.zip (238 MB) &darr;
+            Download BERC_Team_submission.zip (271 MB) &darr;
           </a>
         </div>
       </div>
