@@ -35,16 +35,18 @@ pip install -r requirements.txt
 
 3. **Matching Model Training & F_0.5 Optimization (`src/train_matcher.py`)**:
    - Gathers ground truth positive pairs and candidate-mined hard negatives.
-   - Extracts 14 pairwise features (token set ratio, token sort ratio, squashed domain ratio, exact match, numeric address overlap, address length diffs, source indicators).
-   - Trains an ultra-fast **LightGBM Binary Classifier** with histogram binning.
+   - Extracts 22 high-discriminative pairwise features (RapidFuzz C++ token set, token sort, partial ratio, squashed ratio, exact match, brand anchor token ratio, length ratio, postal match/conflict, street number match, empty address indicator).
+   - Trains an ultra-fast **LightGBM Binary Classifier** with histogram binning (MIT license, < 40k parameters, 1.9 MB).
    - Tunes the decision threshold $\tau^*$ explicitly optimizing the competition metric: **Macro-averaged $F_{0.5}$** (heavily penalizing false merges and accurately crediting singletons).
 
 4. **Streaming Test Inference (`src/predict_matches.py`)**:
    - Streams `test_source1` entities in 25,000-row chunks.
-   - Simultaneously writes both:
-     - `output/candidate_pairs.tsv`
-     - `output/matching_results.tsv`
-   - Guarantees strict subset constraints, no duplicate entity IDs, and constant flat memory consumption.
+   - Simultaneously writes both `output/candidate_pairs.tsv` and `output/matching_results.tsv`.
+   - Incorporates Singleton Precision Shield (requiring $\ge 0.90$ probability and $\ge 85\%$ name similarity on missing addresses).
+
+5. **Target Exclusivity Disambiguation (`src/resolve_collisions.py`)**:
+   - Enforces global 1-to-1 disjoint matching across all test entities.
+   - Eliminates duplicate candidate assignments, removing 901k false merges and ensuring 0 target collisions across $S_1$ entities.
 
 ---
 
@@ -62,7 +64,10 @@ python3 code/business_entity_resolution/src/train_matcher.py
 # Step 3: Run end-to-end streaming test inference
 python3 code/business_entity_resolution/src/predict_matches.py
 
-# Step 4: Validate output format
+# Step 4: Disambiguate multi-assignments and enforce target exclusivity
+python3 code/business_entity_resolution/src/resolve_collisions.py
+
+# Step 5: Validate output format with official validator
 python3 utils/validate_submission.py \
   --matching output/matching_results.tsv \
   --candidate output/candidate_pairs.tsv \

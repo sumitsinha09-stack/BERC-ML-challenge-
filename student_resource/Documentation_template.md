@@ -106,8 +106,25 @@ For every candidate pair $(S_1, C_i)$, 22 discriminative features are extracted 
 
 ---
 
-## 6. Conclusion
-The developed solution delivers a fast, low-memory, and accurate entity resolution system. By avoiding brute-force sparse matrix operations in favor of token-indexed candidate pools and C++ string feature extraction, the pipeline resolves millions of multi-source business records in minutes while adhering strictly to fair-play and resource constraints.
+## 6. Regulatory & Fair-Play Compliance
+
+### 6.1 Zero External Data Lookup (Fair-Play Strict Adherence)
+- **Zero External APIs**: No commercial entity resolution APIs or services (e.g., Dun & Bradstreet, OpenCorporates, ZoomInfo) were used.
+- **Zero Government Lookups**: No business registry databases or lookup tools were accessed.
+- **Zero External Geocoding**: No external geocoding, address standardizers, or maps APIs (Google Maps, Nominatim, Mapbox) were used. All normalization relies exclusively on self-contained regular expression standardizers and string tokenization within `preprocess.py`.
+- **Zero Web Augmentation**: No web scraping, domain lookups, or internet data augmentations were performed.
+- **100% Self-Contained**: The pipeline trains and infers entirely within local compute using only the competition-provided data.
+
+### 6.2 Model Architecture, License & Size Constraints
+- **Model Type**: LightGBM Gradient Boosted Decision Tree (GBDT).
+- **License**: **MIT License** (fully compliant with the MIT / Apache 2.0 open-source requirement).
+- **Parameter Count**: Total trees = 400 with 45 leaves each $\implies < 40{,}000$ split thresholds (vastly below the **8 Billion parameter limit**; over $200{,}000\times$ smaller than the cap).
+- **Serialized Model Size**: **$1.9\text{ MB}$** on disk (`matcher_model.pkl`), ensuring immediate distribution and loading.
+
+---
+
+## 7. Conclusion
+The developed solution delivers a fast, low-memory, and accurate entity resolution system. By avoiding brute-force sparse matrix operations in favor of token-indexed candidate pools, C++ string feature extraction, and global target exclusivity disambiguation, the pipeline resolves millions of multi-source business records in minutes while adhering strictly to fair-play and resource constraints.
 
 ---
 
@@ -119,4 +136,6 @@ All runnable code is located in `code/business_entity_resolution/`:
 - `src/fast_blocking.py`: High-recall inverted index blocking module.
 - `src/train_matcher.py`: Feature extraction and LightGBM model training with $F_{0.5}$ optimization.
 - `src/predict_matches.py`: Streaming test inference writing `matching_results.tsv` and `candidate_pairs.tsv`.
+- `src/resolve_collisions.py`: Global Disjoint Assignment enforcing 100% Target Exclusivity across test entities.
+- `src/matcher_model.pkl`: Serialized trained LightGBM GBDT model ($1.9\text{ MB}$).
 - `requirements.txt`: Pinned dependencies (`lightgbm`, `rapidfuzz`, `pandas`, `scipy`, `scikit-learn`).

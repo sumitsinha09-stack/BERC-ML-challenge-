@@ -61,6 +61,15 @@ def make_submission(team_name="BERC_Team"):
                 
     print(f"\nSUCCESS! Final submission package created at: {zip_filename}")
     print(f"Package Size: {os.path.getsize(zip_filename) / (1024*1024):.2f} MB")
+    
+    # Also place copies in workspace root for easy user submission
+    root_dir = os.path.dirname(base_dir)
+    root_zip = os.path.join(root_dir, f"{team_name}_submission.zip")
+    root_match = os.path.join(root_dir, "matching_results.tsv")
+    import shutil
+    shutil.copy2(zip_filename, root_zip)
+    shutil.copy2(os.path.join(base_dir, "output", "matching_results.tsv"), root_match)
+    print(f"Placed direct submission copies at:\n  1. {root_zip}\n  2. {root_match}")
     return True
 
 if __name__ == '__main__':
