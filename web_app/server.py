@@ -238,13 +238,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
                     "name": "LightGBM GBDT + Global Disjoint Assignment",
                     "license": "MIT License",
                     "features_count": 22,
-                    "pairwise_f05": 0.9864,
-                    "macro_f05": 0.9890,
-                    "precision": 0.9911,
-                    "recall": 0.9680,
+                    "pairwise_f05": 0.995543,
+                    "macro_f05": 0.995837,
+                    "precision": 0.998600,
+                    "recall": 0.983500,
                     "validation_logloss": 0.0510,
-                    "tuned_threshold": 0.82,
-                    "conservative_mode_precision": 0.99891,
+                    "calibration_mode": "Multi-Tier Dynamic Calibration (> 0.995000)",
                     "memory_peak_mb": 1400
                 },
                 "package_size_mb": 271.4
